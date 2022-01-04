@@ -1,0 +1,5 @@
+rioja_num = 24; 
+malbec_num= 17;
+rioja_price = 25;
+malbec_price = 49;
+total_price = 2000;

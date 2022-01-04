@@ -11,15 +11,15 @@
 %----INPUTS------------------
 
 %number of bottles
-int: rioja_num = 24; 
-int: malbec_num = 17;
+int: rioja_num; 
+int: malbec_num;
 
 %price of each bottle
-int: rioja_price = 25;
-int: malbec_price = 49;
+int: rioja_price;
+int: malbec_price;
 
 %total spent that week
-int: total_price = 2000;
+int: total_price;
 
 %money spent of bottles found
 int: bottles_found_cost = rioja_price*rioja_num + malbec_price*malbec_num;
