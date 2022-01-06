@@ -27,18 +27,20 @@ int: bottles_found_cost = rioja_price*rioja_num + malbec_price*malbec_num;
 %money spent of missing bottles
 int: bottles_missing_cost = total_price - bottles_found_cost;
 
+%number of missing rioja and malbec bottles (rounded down to integer)
+int: rioja_missing = floor(bottles_missing_cost/rioja_price);
+int: malbec_missing = floor(bottles_missing_cost/malbec_price);
 
 %-------VARIABLES-----------------------
 %find how many bottles already drank
-var min(floor(bottles_missing_cost/rioja_price), floor(bottles_missing_cost/malbec_price))..max(floor(bottles_missing_cost/rioja_price), floor(bottles_missing_cost/malbec_price)): bottles_drunk;
-var 0..floor(total_price/rioja_price): rioja_drunk;
-var 0..floor(total_price/malbec_price): malbec_drunk;
-
+var min(rioja_missing, malbec_missing)..max(rioja_missing, malbec_missing): bottles_drunk;
+var 0..floor(bottles_missing_cost/rioja_price): rioja_drunk;
+var 0..floor(bottles_missing_cost/malbec_price): malbec_drunk;
 
 %-------CONSTRAINTS----------------------
 constraint rioja_drunk*rioja_price + malbec_drunk*malbec_price = bottles_missing_cost;
 constraint bottles_drunk = malbec_drunk + rioja_drunk;
-%-----------------------------------------
+
 
 
 solve satisfy;
