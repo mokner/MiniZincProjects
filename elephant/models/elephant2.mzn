@@ -52,7 +52,7 @@ else location[g,t] = on_boat endif);
 
 %%%%%%%%%%%%%%%%%%%%
 
-% Max stones constraint
+% Minimum stones constraint
 constraint sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E;
 
 % Guard move constraint
@@ -74,10 +74,6 @@ constraint forall(t in TIME)
 
 % Pier guard limit constraint
 
-% constraint forall(t in TIME)
-% (sum(g in GUARD where location[g,t]= 0)(1) <= p);
-
-% SKETCH:
 constraint forall(t in TIME)
  (sum(g in GUARD where act[g,t] != 0)(1) <= p);
 
@@ -87,6 +83,10 @@ constraint forall(g in GUARD, t in 1..steps-1)
 (if act[g,t] > 0 then act[g,t+1] in {0, -1}
 elseif act[g,t] = -1 then act[g,t+1] >= 0
 else act[g,t+1] in {0,-1} endif);
+
+% Movement after reaching minimum stones constraint
+constraint if (sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E) then forall(g in GUARD, t in steps+1..T)(act[g,t]=0) endif;
+
 
 % OBJECTIVE %
 solve minimize steps; % DO IT IN THE LEAST NUMBER OF STEPS
