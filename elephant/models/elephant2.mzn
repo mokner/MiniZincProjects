@@ -34,6 +34,25 @@ int: on_bank = 0;
 array[GUARD,TIME0] of var {on_boat, on_bank}: location;
 
 
+% FIXED VARIABLES
+
+% act =
+% [| 0, 10, 0, -1, 0, 10, 0, 0, 0, 0
+% | 10, 0, -1, 0, 10, 0, 0, 0, 0, 0
+% | 10, 0, 0, -1, 0, 10, 0, 0, 0, 0
+% | 10, 0, 0, -1, 10, 0, 0, 0, 0, 0
+% |];
+
+% location =
+% [| 0: 1: 2: 3: 4: 5: 6: 7: 8: 9: 10:
+% | 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0
+% | 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0
+% | 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0
+% | 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0
+% |];
+
+
+
 % CONSTRAINTS %
 
 % starting position of all the guards is on the bank
@@ -64,9 +83,29 @@ constraint forall(g in GUARD, t in 1..steps)
 (if act[g,t] = hard[g] then forall(i in 1..tired[g])(if t+i <=T then act[g,t+i] in {0, -1} endif) endif);
 
 
-% First move constraint
-constraint forall(g in GUARD)
-(act[g,1] != -1);
+% First moves constraint
+
+% constraint forall(g in GUARD)
+% (act[g,1] != -1);
+
+%constraint forall(g in GUARD, t in TIME)
+%(if act[g,t] = -1 then location[g,t-1] = on_boat endif);
+
+% constraint forall(g in GUARD, t in 1..steps+1)
+% (if act[g,t] = -1 then act[g,t-1] >= 0 endif);
+
+%constraint forall(g in GUARD)(forall (t in 0..steps)
+%(if location[g,t] = 0 then act[g,t+1] != -1 endif));
+
+% constraint forall(g in GUARD)(forall(t in TIME)(
+% (if location[g,t-1] = on_bank then act[g,t] != -1 
+% else act[g,t] < 0 endif)));
+
+% constraint forall(g in GUARD, t in TIME)
+% (location[g,t-1] = on_bank -> act[g,t] != -1);
+
+constraint forall(g in GUARD, t in TIME)
+(act[g,t] = -1 -> location[g,t-1] != on_bank);
 
 % Boat guard limit constraint
 constraint forall(t in TIME)
