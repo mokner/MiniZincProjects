@@ -82,7 +82,7 @@ else location[g,t] = on_boat endif);
 constraint sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E;
 
 % Guard move constraint
-constraint forall(g in GUARD, t in TIME)(act[g,t] in {easy[g], hard[g], 0, -1});
+constraint forall(g in GUARD, t in 1..steps)(act[g,t] in {easy[g], hard[g], 0, -1});
 
 % Guard tiredness constraint
 
@@ -94,22 +94,6 @@ constraint forall(g in GUARD, t in 1..steps)
 
 % constraint forall(g in GUARD)
 %  (act[g,1] != -1);
-
-%constraint forall(g in GUARD, t in TIME)
-%(if act[g,t] = -1 then location[g,t-1] = on_boat endif);
-
-% constraint forall(g in GUARD, t in 1..steps+1)
-% (if act[g,t] = -1 then act[g,t-1] >= 0 endif);
-
-%constraint forall(g in GUARD)(forall (t in 0..steps)
-%(if location[g,t] = 0 then act[g,t+1] != -1 endif));
-
-% constraint forall(g in GUARD)(forall(t in TIME)(
-% (if location[g,t-1] = on_bank then act[g,t] != -1 
-% else act[g,t] < 0 endif)));
-
-% constraint forall(g in GUARD, t in TIME)
-% (location[g,t-1] = on_bank -> act[g,t] != -1);
 
 %%%%%%%%%%%%%%%%%%%%% MOST RECENT %
 % constraint forall(g in GUARD, t in TIME)
@@ -133,20 +117,28 @@ constraint forall(g in GUARD, t in 1..steps)
 
 
 % Boat guard limit constraint
-constraint forall(t in TIME)
+constraint forall(t in 1..steps)
 (sum(g in GUARD where location[g,t] = on_boat)(1) <= b);
 
 % Pier guard limit constraint
 
-constraint forall(t in TIME)
+constraint forall(t in 1..steps)
  (sum(g in GUARD where act[g,t] != 0)(1) <= p);
 
 
 % Move order constraints (allowed order of moves between locations)
+% constraint forall(g in GUARD, t in 1..steps-1)
+% (if act[g,t] > 0 then act[g,t+1] in {0, -1}
+% elseif act[g,t] = -1 then act[g,t+1] >= 0
+% else act[g,t+1] in {0,-1} endif);
+
+%%% constraint forall(g in GUARD, t in 1..steps-1)
+%%% (if act[g,t] > 0 then act[g,t+1] in {0, -1}
+%%% else act[g,t+1] >= 0 endif);
+
 constraint forall(g in GUARD, t in 1..steps-1)
-(if act[g,t] > 0 then act[g,t+1] in {0, -1}
-elseif act[g,t] = -1 then act[g,t+1] >= 0
-else act[g,t+1] in {0,-1} endif);
+(if location[g,t] = on_boat then act[g,t+1] in {0, -1}
+else act[g,t+1] >= 0 endif);
 
 
 % Movement and location after reaching minimum stones constraint
