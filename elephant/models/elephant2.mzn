@@ -51,6 +51,14 @@ array[GUARD,TIME0] of var {on_boat, on_bank}: location;
 % | 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0
 % |];
 
+% location =
+% [| 0: 1: 2: 3: 4: 5: 6: 7: 8: 9: 10:
+% | 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1
+% | 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1
+% | 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1
+% | 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1
+% |];
+
 
 
 % CONSTRAINTS %
@@ -58,18 +66,17 @@ array[GUARD,TIME0] of var {on_boat, on_bank}: location;
 % starting position of all the guards is on the bank
 constraint forall(g in GUARD)(location[g,0] = on_bank);
 
-% connection between action matrix and location matrix
-constraint forall(g in GUARD, t in TIME)
+%connection between action matrix and location matrix
+constraint forall(g in GUARD, t in 1..steps)
 (if act[g,t] = 0 then location[g,t] = location[g, t-1] 
 elseif act[g,t] = -1 then location[g,t] = on_bank
-%elseif act[g,t] > 0 then location[g,t] = on_boat
 else location[g,t] = on_boat endif);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% constraint forall(g in GUARD, t in TIME)
+% (if act[g,t] = -1 then location[g,t] = on_bank
+% elseif act[g,t] > 0 then location[g,t] = on_boat
+% else act[g,t] = 0 endif);
 
-%NOTE: maybe location matrix only tracks on bank and on boat, but on pier is tracked by not having to guards have a movement at the same time (i.e. if guard 1 is >0 then other guard cannot have >0 or -1)
-
-%%%%%%%%%%%%%%%%%%%%
 
 % Minimum stones constraint
 constraint sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E;
@@ -86,7 +93,7 @@ constraint forall(g in GUARD, t in 1..steps)
 % First moves constraint
 
 % constraint forall(g in GUARD)
-% (act[g,1] != -1);
+%  (act[g,1] != -1);
 
 %constraint forall(g in GUARD, t in TIME)
 %(if act[g,t] = -1 then location[g,t-1] = on_boat endif);
@@ -104,8 +111,26 @@ constraint forall(g in GUARD, t in 1..steps)
 % constraint forall(g in GUARD, t in TIME)
 % (location[g,t-1] = on_bank -> act[g,t] != -1);
 
-constraint forall(g in GUARD, t in TIME)
-(act[g,t] = -1 -> location[g,t-1] != on_bank);
+%%%%%%%%%%%%%%%%%%%%% MOST RECENT %
+% constraint forall(g in GUARD, t in TIME)
+% (act[g,t] = -1 -> location[g,t-1] != on_bank);
+
+%constraint forall(g in GUARD, t in 2..T)
+%(act[g,t] = -1 -> act[g,t-1] > 0);
+
+% constraint forall(g in GUARD, t in TIME where act[g,t]=-1)
+% (forall (g in 1..t-1, tt in 1..t-1)())
+
+
+% constraint forall(g in GUARD, t in 2..T)
+% (if location[g,t] = on_bank then act[g,t-1] != -1 /\ act[g,t] != -1
+% elseif location[g,t]= on_boat then act[g, t-1] <= 0 /\ act[g,t] <= 0
+% else act[g,t] = 0 endif)
+
+% constraint forall(g in GUARD, t in 1..T-1)
+% (if location[g,t-1]= on_bank then act[g,t] != -1 /\ act[g,t+1] != -1
+% else act[g,t] <=0 /\ act[g,t+1] <= 0 endif);
+
 
 % Boat guard limit constraint
 constraint forall(t in TIME)
@@ -123,8 +148,9 @@ constraint forall(g in GUARD, t in 1..steps-1)
 elseif act[g,t] = -1 then act[g,t+1] >= 0
 else act[g,t+1] in {0,-1} endif);
 
-% Movement after reaching minimum stones constraint
-constraint if (sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E) then forall(g in GUARD, t in steps+1..T)(act[g,t]=0) endif;
+
+% Movement and location after reaching minimum stones constraint
+constraint forall(g in GUARD, t in steps+1..T)(act[g,t]=0 /\ location[g,t]=0);
 
 
 % OBJECTIVE %
