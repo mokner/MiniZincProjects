@@ -118,11 +118,11 @@ else act[g,t+1] >= 0 endif);
 
 
 % Same movement direction on pier constraint
-constraint forall(t in 1..steps)(forall(g in GUARD where act[g,t] != 0)
-(act[g,t] in {0,-1} \/ act[g,t] >= 0));
+% constraint forall(t in 1..steps)(forall(g in GUARD where act[g,t] != 0)
+% (act[g,t] in {0,-1} \/ act[g,t] >= 0));
 
-% constraint forall(t in 1..steps) 
-% (sum(g in GUARD)(act[g,t]) >=0 \/ sum(g in GUARD)(act[g,t]) <=0);
+constraint forall(t in 1..steps)(forall(g in GUARD where act[g,t] != 0)
+(act[g,t] in {0,-1}) \/ forall(g in GUARD where act[g,t] != 0)(act[g,t] >= 0));
 
 % Movement and location after reaching minimum stones constraint
 constraint forall(g in GUARD, t in steps+1..T)(act[g,t]=0 /\ location[g,t]=0);
