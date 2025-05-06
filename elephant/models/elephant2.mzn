@@ -26,30 +26,11 @@ var TIME: steps; % NUMBER OF STEPS TO CARRY STONES
 set of int: TIME0 = 0..T; % includes time 0, the initial step at the start before stones are moved
 array[TIME0] of var 0..E: sboat; %stones on boat EACH GUARD NEEDS THEIR OWN ARRAY LIKE THIS (?)
 
-% LOCATION MATRIX              (on pier will be tracked differently)
-%int: on_pier = 0;
+% LOCATION MATRIX (on pier will be tracked differently)
 int: on_boat = 1;
 int: on_bank = 0;
 
 array[GUARD,TIME0] of var {on_boat, on_bank}: location;
-
-
-% FIXED VARIABLES
-
-% act =
-% [| 0, 10, 0, -1, 0, 10, 0, 0, 0, 0
-% | 10, 0, -1, 0, 10, 0, 0, 0, 0, 0
-% | 10, 0, 0, -1, 0, 10, 0, 0, 0, 0
-% | 10, 0, 0, -1, 10, 0, 0, 0, 0, 0
-% |];
-
-% location =
-% [| 0: 1: 2: 3: 4: 5: 6: 7: 8: 9: 10:
-% | 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0
-% | 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0
-% | 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0
-% | 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0
-% |];
 
 
 % CONSTRAINTS %
@@ -63,12 +44,6 @@ constraint forall(g in GUARD, t in 1..steps)
 elseif act[g,t] = -1 then location[g,t] = on_bank /\ location[g,t-1] = on_boat
 else location[g,t] = on_boat /\ location[g,t-1] = on_bank endif);
 
-
-% constraint forall(g in GUARD, t in 1..steps)
-% (if act[g,t] = 0 then location[g,t] = location[g, t-1] 
-% elseif act[g,t] = -1 then location[g,t] = on_bank
-% else location[g,t] = on_boat endif);
-
 % Minimum stones constraint
 constraint sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E;
 
@@ -76,20 +51,8 @@ constraint sum(g in GUARD, t in 1..steps where act[g,t]>0)(act[g,t]) >= E;
 constraint forall(g in GUARD, t in 1..steps)(act[g,t] in {easy[g], hard[g], 0, -1});
 
 % Guard tiredness constraint
-
 constraint forall(g in GUARD, t in 1..steps)
 (if act[g,t] = hard[g] then forall(i in 1..tired[g])(if t+i <=T then act[g,t+i] in {0, -1} endif) endif);
-
-
-% First moves constraint
-% constraint forall(g in GUARD, t in 2..T)
-% (if location[g,t] = on_bank then act[g,t-1] != -1 /\ act[g,t] != -1
-% elseif location[g,t]= on_boat then act[g, t-1] <= 0 /\ act[g,t] <= 0
-% else act[g,t] = 0 endif)
-
-% constraint forall(g in GUARD, t in 1..T-1)
-% (if location[g,t-1]= on_bank then act[g,t] != -1 /\ act[g,t+1] != -1
-% else act[g,t] <=0 /\ act[g,t+1] <= 0 endif);
 
 
 % Boat guard limit constraint
@@ -103,24 +66,12 @@ constraint forall(t in 1..steps)
 
 
 % Move order constraints (allowed order of moves between locations)
-% constraint forall(g in GUARD, t in 1..steps-1)
-% (if act[g,t] > 0 then act[g,t+1] in {0, -1}
-% elseif act[g,t] = -1 then act[g,t+1] >= 0
-% else act[g,t+1] in {0,-1} endif);
-
-%%% constraint forall(g in GUARD, t in 1..steps-1)
-%%% (if act[g,t] > 0 then act[g,t+1] in {0, -1}
-%%% else act[g,t+1] >= 0 endif);
-
 constraint forall(g in GUARD, t in 1..steps-1)
 (if location[g,t] = on_boat then act[g,t+1] in {0, -1}
 else act[g,t+1] >= 0 endif);
 
 
 % Same movement direction on pier constraint
-% constraint forall(t in 1..steps)(forall(g in GUARD where act[g,t] != 0)
-% (act[g,t] in {0,-1} \/ act[g,t] >= 0));
-
 constraint forall(t in 1..steps)(forall(g in GUARD where act[g,t] != 0)
 (act[g,t] in {0,-1}) \/ forall(g in GUARD where act[g,t] != 0)(act[g,t] >= 0));
 
@@ -131,12 +82,11 @@ constraint forall(g in GUARD, t in steps+1..T)(act[g,t]=0 /\ location[g,t]=0);
 % OBJECTIVE %
 solve minimize steps; % DO IT IN THE LEAST NUMBER OF STEPS
 
+% RESULT
 
+% This model achieved a score of 17/18
 
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%% STARTING CODE %%%%%%%%%%%%%%
