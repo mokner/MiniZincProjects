@@ -1,0 +1,10 @@
+% SOURCE: https://www.binarypuzzle.com/puzzles.php?size=6&level=1&nr=1
+
+SIZE = 6;
+
+puzzle = array2d(1..SIZE, 1..SIZE, [ 1, -1, -1, 0, -1, -1,
+                                    -1, -1,  0, 0, -1,  1,
+                                    -1,  0,  0, -1, -1, 1,
+                                    -1, -1, -1, -1, -1, -1,
+                                     0,  0, -1,  1, -1, -1,
+                                    -1,  1, -1, -1,  0,  0])
