@@ -37,3 +37,14 @@ array[MEETING] of var ROOM: room;
 set of int: KUNGFU = 1..n;
 array[KUNGFU] of var int: kungfu;  % start time for each lesson
    % unused lessons have start times after 24*ndays
+
+%%%%% STAGE A %%%%%
+
+% setting kungfu lessons out of range for stage A
+constraint forall(i in KUNGFU)(kungfu[i] >= 24*ndays);
+
+% rooms reserved constraint (usedtime and useddur)
+%%%constraint forall(i in start, j in ROOM)(not(start[i] in usedstart[j]..useddur[j]));
+
+% objective function
+solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
