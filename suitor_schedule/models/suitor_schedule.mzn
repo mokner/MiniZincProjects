@@ -1,3 +1,5 @@
+include "disjunctive.mzn";
+
 % scheduling suitors
 enum SUITOR;
 SUITOR: LiuBei; % which suitor is LiuBei
@@ -42,6 +44,11 @@ array[KUNGFU] of var int: kungfu;  % start time for each lesson
 
 % setting kungfu lessons out of range for stage A
 constraint forall(i in KUNGFU)(kungfu[i] >= 24*ndays);
+
+%constraint disjunctive(start, dur);
+
+% mintime and maxtime spent for suitors in meetings constraint
+constraint forall(s in SUITOR)(dur[s] in mintime[s,room[s]]..maxtime[s,room[s]]);
 
 % rooms reserved constraint (usedtime and useddur)
 %%%constraint forall(i in start, j in ROOM)(not(start[i] in usedstart[j]..useddur[j]));
