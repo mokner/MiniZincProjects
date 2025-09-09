@@ -48,7 +48,8 @@ constraint forall(i in KUNGFU)(kungfu[i] > 24*ndays);
 constraint disjunctive(start, dur);
 
 % mintime and maxtime spent for suitors in meetings constraint
-constraint forall(s in SUITOR)(dur[s] in mintime[s,room[s]]..maxtime[s,room[s]]);
+%constraint forall(s in SUITOR)(dur[s] in mintime[s,room[s]]..maxtime[s,room[s]]);
+constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[suitor[m],room[m]]);
 
 % rooms reserved constraint (usedtime and useddur)
 %%%constraint forall(i in start, j in ROOM)(not(start[i] in usedstart[j]..useddur[j]));
