@@ -45,14 +45,23 @@ array[KUNGFU] of var int: kungfu;  % start time for each lesson
 % setting kungfu lessons out of range for stage A
 constraint forall(i in KUNGFU)(kungfu[i] > 24*ndays);
 
+% ensures meeting start times and durations don't overlap with each other
 constraint disjunctive(start, dur);
 
 % mintime and maxtime spent for suitors in meetings constraint
-%constraint forall(s in SUITOR)(dur[s] in mintime[s,room[s]]..maxtime[s,room[s]]);
 constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[suitor[m],room[m]]);
 
 % rooms reserved constraint (usedtime and useddur)
-%%%constraint forall(i in start, j in ROOM)(not(start[i] in usedstart[j]..useddur[j]));
+%constraint forall(i in MEETING, j in ROOM)(not(start[i] in usedstart[j]..usedstart[j]+useddur[j]));
+% constraint forall(s in start)(
+% disjunctive([start[s], dur[s]], [usedstart[Red], useddur[Red]])
+% \/ disjunctive([start[s], dur[s]], [usedstart[Gold], useddur[Gold]])
+% \/ disjunctive([start[s], dur[s]], [usedstart[Blue], useddur[Blue]])
+% );
+%%% RANGE STILL OVERLAPS
+constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]..usedstart[Red]+useddur[Red])
+                 elseif room[r] = Gold then not(start[r] in usedstart[Gold]..usedstart[Gold]+useddur[Red])
+                   else not(start[r] in usedstart[Blue]..usedstart[Blue]+useddur[Blue]) endif);
 
 % objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
