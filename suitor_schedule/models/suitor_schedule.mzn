@@ -59,9 +59,9 @@ constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[s
 % \/ disjunctive([start[s], dur[s]], [usedstart[Blue], useddur[Blue]])
 % );
 %%% RANGE STILL OVERLAPS
-constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]..usedstart[Red]+useddur[Red])
-                 elseif room[r] = Gold then not(start[r] in usedstart[Gold]..usedstart[Gold]+useddur[Red])
-                   else not(start[r] in usedstart[Blue]..usedstart[Blue]+useddur[Blue]) endif);
+constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]-useddur[Red]..usedstart[Red]+useddur[Red])
+                 elseif room[r] = Gold then not(start[r] in usedstart[Gold]-useddur[Gold]..usedstart[Gold]+useddur[Red])
+                   else not(start[r] in usedstart[Blue]-useddur[Blue]..usedstart[Blue]+useddur[Blue]) endif);
 
 % objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
