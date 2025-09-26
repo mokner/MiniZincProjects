@@ -63,5 +63,15 @@ constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Re
                  elseif room[r] = Gold then not(start[r] in usedstart[Gold]-useddur[Gold]..usedstart[Gold]+useddur[Red])
                    else not(start[r] in usedstart[Blue]-useddur[Blue]..usedstart[Blue]+useddur[Blue]) endif);
 
+% constraint forall(r in room) (if room[r] = Red then not(usedstart[Red] in start[r]-useddur[Red]..start[r]+useddur[Red])
+%                  elseif room[r] = Gold then not(usedstart[Gold] in start[r]-useddur[Gold]..start[r]+useddur[Gold])
+%                    else not(usedstart[Blue] in start[r]-useddur[Blue]..start[r]+useddur[Blue]) endif);
+
+
+% Earliest and latest meeting times constraint
+%constraint forall(s in start)(start[s] >= earliest);
+
+%constraint forall(s in start)(start[s]+dur[s] <= latest);
+
 % objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
