@@ -64,12 +64,15 @@ constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[s
 
 constraint forall(m in MEETING)(
 let {var ROOM: r = room[m];} in
-disjunctive([start[m] mod 24, usedstart[r]], [dur[m], useddur[r]]));
+disjunctive([start[m] mod 24, usedstart[r]], [dur[m], useddur[r]])
+);
 
 % Earliest and latest meeting times constraints
-constraint forall(m in MEETING)(start[m] mod 24 >= earliest);
+constraint forall(m in MEETING)(
+start[m] mod 24 >= earliest /\ start[m] mod 24 < latest /\ (start[m]+dur[m]) mod 24 <= latest
+);
 
-constraint forall(m in MEETING)((start[m]+dur[m]) mod 24 <= latest);
+%constraint forall(m in MEETING)((start[m]+dur[m]) mod 24 <= latest);
 
 % Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
