@@ -69,7 +69,10 @@ disjunctive([start[m] mod 24, usedstart[r]], [dur[m], useddur[r]])
 
 % Earliest and latest meeting times constraints
 constraint forall(m in MEETING)(
-start[m] mod 24 >= earliest /\ start[m] mod 24 < latest /\ (start[m]+dur[m]) mod 24 <= latest
+start[m] mod 24 >= earliest
+ /\ (start[m] + dur[m]) mod 24 > earliest
+ /\ start[m] mod 24 < latest
+ /\ (start[m]+dur[m]) mod 24 <= latest
 );
 
 %constraint forall(m in MEETING)((start[m]+dur[m]) mod 24 <= latest);
