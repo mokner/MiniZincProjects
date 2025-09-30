@@ -42,36 +42,34 @@ array[KUNGFU] of var int: kungfu;  % start time for each lesson
 
 %%%%% STAGE A %%%%%
 
-% setting kungfu lessons out of range for stage A
+% Setting kungfu lessons out of range for stage A
 constraint forall(i in KUNGFU)(kungfu[i] > 24*ndays);
 
-% ensures meeting start times and durations don't overlap with each other
+% Ensures meeting start times and durations don't overlap with each other
+
 constraint disjunctive(start, dur);
 
 % mintime and maxtime spent for suitors in meetings constraint
 constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[suitor[m],room[m]]);
 
-% rooms reserved constraint (usedtime and useddur)
-%constraint forall(i in MEETING, j in ROOM)(not(start[i] in usedstart[j]..usedstart[j]+useddur[j]));
-% constraint forall(s in start)(
-% disjunctive([start[s], dur[s]], [usedstart[Red], useddur[Red]])
-% \/ disjunctive([start[s], dur[s]], [usedstart[Gold], useddur[Gold]])
-% \/ disjunctive([start[s], dur[s]], [usedstart[Blue], useddur[Blue]])
-% );
-%%% RANGE STILL OVERLAPS
-constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]-useddur[Red]..usedstart[Red]+useddur[Red])
-                 elseif room[r] = Gold then not(start[r] in usedstart[Gold]-useddur[Gold]..usedstart[Gold]+useddur[Red])
-                   else not(start[r] in usedstart[Blue]-useddur[Blue]..usedstart[Blue]+useddur[Blue]) endif);
+% Rooms reserved constraint (usedtime and useddur)
+
+% constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]-useddur[Red]..usedstart[Red]+useddur[Red])
+%                  elseif room[r] = Gold then not(start[r] in usedstart[Gold]-useddur[Gold]..usedstart[Gold]+useddur[Red])
+%                    else not(start[r] in usedstart[Blue]-useddur[Blue]..usedstart[Blue]+useddur[Blue]) endif);
 
 % constraint forall(r in room) (if room[r] = Red then not(usedstart[Red] in start[r]-useddur[Red]..start[r]+useddur[Red])
 %                  elseif room[r] = Gold then not(usedstart[Gold] in start[r]-useddur[Gold]..start[r]+useddur[Gold])
 %                    else not(usedstart[Blue] in start[r]-useddur[Blue]..start[r]+useddur[Blue]) endif);
 
+constraint forall(m in MEETING)(
+let {var ROOM: r = room[m];} in
+disjunctive([start[m] mod 24, usedstart[r]], [dur[m], useddur[r]]));
 
-% Earliest and latest meeting times constraint
-%constraint forall(s in start)(start[s] >= earliest);
+% Earliest and latest meeting times constraints
+constraint forall(m in MEETING)(start[m] mod 24 >= earliest);
 
-%constraint forall(s in start)(start[s]+dur[s] <= latest);
+constraint forall(m in MEETING)((start[m]+dur[m]) mod 24 <= latest);
 
-% objective function
+% Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
