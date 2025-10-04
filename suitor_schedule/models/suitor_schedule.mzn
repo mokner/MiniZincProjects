@@ -1,4 +1,5 @@
 include "disjunctive.mzn";
+include "globals.mzn";
 
 % scheduling suitors
 enum SUITOR;
@@ -40,6 +41,9 @@ set of int: KUNGFU = 1..n;
 array[KUNGFU] of var int: kungfu;  % start time for each lesson
    % unused lessons have start times after 24*ndays
 
+
+array[MEETING] of var MEETING: start_index; % index of start times in chronological order
+
 %%%%% STAGE A %%%%%
 
 % Setting kungfu lessons out of range for stage A
@@ -66,10 +70,19 @@ start[m] mod 24 >= earliest
  /\ (start[m]+dur[m]) mod 24 <= latest
 );
 
+%%%%% STAGE B CONSTRAINTS START HERE
+
+% Start index constraint
+constraint arg_sort(start, start_index);
+
 % Movement between rooms constraint
 %forall(s in SUITOR)()
+
+
 
 % Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
 
-output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
+%output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
+%output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
+output["start: \(start), \n start_index: \(start_index)" ];
