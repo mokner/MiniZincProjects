@@ -53,15 +53,6 @@ constraint disjunctive(start, dur);
 constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[suitor[m],room[m]]);
 
 % Rooms reserved constraint (usedtime and useddur)
-
-% constraint forall(r in room) (if room[r] = Red then not(start[r] in usedstart[Red]-useddur[Red]..usedstart[Red]+useddur[Red])
-%                  elseif room[r] = Gold then not(start[r] in usedstart[Gold]-useddur[Gold]..usedstart[Gold]+useddur[Red])
-%                    else not(start[r] in usedstart[Blue]-useddur[Blue]..usedstart[Blue]+useddur[Blue]) endif);
-
-% constraint forall(r in room) (if room[r] = Red then not(usedstart[Red] in start[r]-useddur[Red]..start[r]+useddur[Red])
-%                  elseif room[r] = Gold then not(usedstart[Gold] in start[r]-useddur[Gold]..start[r]+useddur[Gold])
-%                    else not(usedstart[Blue] in start[r]-useddur[Blue]..start[r]+useddur[Blue]) endif);
-
 constraint forall(m in MEETING)(
 let {var ROOM: r = room[m];} in
 disjunctive([start[m] mod 24, usedstart[r]], [dur[m], useddur[r]])
@@ -75,7 +66,10 @@ start[m] mod 24 >= earliest
  /\ (start[m]+dur[m]) mod 24 <= latest
 );
 
-%constraint forall(m in MEETING)((start[m]+dur[m]) mod 24 <= latest);
+% Movement between rooms constraint
+%forall(s in SUITOR)()
 
 % Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
+
+output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
