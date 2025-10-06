@@ -72,12 +72,32 @@ start[m] mod 24 >= earliest
 
 %%%%% STAGE B CONSTRAINTS START HERE
 
+%%constraint (stage = B) ->
+%%%(  %%% mind these brackets
+
 % Start index constraint
 constraint arg_sort(start, start_index);
 
 % Movement between rooms constraint
-%forall(s in SUITOR)()
 
+%constraint forall(m in 2..n-1)(start[start_index[m]] = start[start_index[m]] + move[room[start_index[m]], room[start_index[m+1]]]);
+
+% constraint forall(m in 1..n-1)(
+% let {var MEETING: index = start_index[m];} in
+% start[index+1] = start[index] + move[room[index-1], room[index]]
+% );
+
+constraint forall(m in 1..n-1)(
+let {var ROOM: r = room[start_index[m]];
+     var ROOM: next_r = room[start_index[m+1]];
+     var TIME: move_dur = move[r, next_r];
+     array[MEETING] of var TIME: full_dur = [dur[start_index[m]] + move_dur];
+     } in
+     
+     disjunctive(start, full_dur)
+);
+
+%%%);
 
 
 % Objective function
@@ -85,4 +105,5 @@ solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
 
 %output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
 %output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
-output["start: \(start), \n start_index: \(start_index)" ];
+%output["start: \(start), \n start_index: \(start_index)" ];
+%output["start: \(start), \n start_index: \(start_index), \n sorted index: \(sort(start_index))" ];
