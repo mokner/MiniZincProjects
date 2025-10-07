@@ -72,11 +72,12 @@ start[m] mod 24 >= earliest
 
 %%%%% STAGE B CONSTRAINTS START HERE
 
-%%constraint (stage = B) ->
-%%%(  %%% mind these brackets
+array[MEETING] of var TIME: full_dur;
+constraint (stage = B) ->
+(  %%% mind these brackets
 
 % Start index constraint
-constraint arg_sort(start, start_index);
+ arg_sort(start, start_index)
 
 % Movement between rooms constraint
 
@@ -87,17 +88,34 @@ constraint arg_sort(start, start_index);
 % start[index+1] = start[index] + move[room[index-1], room[index]]
 % );
 
-constraint forall(m in 1..n-1)(
+% constraint forall(m in 1..n-1)(
+% let {var ROOM: r = room[start_index[m]];
+%      var ROOM: next_r = room[start_index[m+1]];
+%      var TIME: move_dur = move[r, next_r];
+%      array[MEETING] of var TIME: full_dur = [dur[start_index[m]] + move_dur];
+%      } in
+     
+%      disjunctive(start, full_dur)
+% );
+
+
+
+/\ forall(m in 1..n-1)(
 let {var ROOM: r = room[start_index[m]];
      var ROOM: next_r = room[start_index[m+1]];
      var TIME: move_dur = move[r, next_r];
-     array[MEETING] of var TIME: full_dur = [dur[start_index[m]] + move_dur];
+      
      } in
      
-     disjunctive(start, full_dur)
-);
+     full_dur[m] = dur[start_index[m]] + move_dur
+)
 
-%%%);
+/\
+
+ disjunctive(start, full_dur)
+
+
+); %%%% END OF STAGE B
 
 
 % Objective function
