@@ -80,26 +80,6 @@ constraint (stage = B) ->
  arg_sort(start, start_index)
 
 % Movement between rooms constraint
-
-%constraint forall(m in 2..n-1)(start[start_index[m]] = start[start_index[m]] + move[room[start_index[m]], room[start_index[m+1]]]);
-
-% constraint forall(m in 1..n-1)(
-% let {var MEETING: index = start_index[m];} in
-% start[index+1] = start[index] + move[room[index-1], room[index]]
-% );
-
-% constraint forall(m in 1..n-1)(
-% let {var ROOM: r = room[start_index[m]];
-%      var ROOM: next_r = room[start_index[m+1]];
-%      var TIME: move_dur = move[r, next_r];
-%      array[MEETING] of var TIME: full_dur = [dur[start_index[m]] + move_dur];
-%      } in
-     
-%      disjunctive(start, full_dur)
-% );
-
-
-
 /\ forall(m in 1..n-1)(
 let {var ROOM: r = room[start_index[m]];
      var ROOM: next_r = room[start_index[m+1]];
@@ -110,12 +90,17 @@ let {var ROOM: r = room[start_index[m]];
      full_dur[m] = dur[start_index[m]] + move_dur
 )
 
-/\
+/\ disjunctive(start, full_dur)
 
- disjunctive(start, full_dur)
+/\ full_dur[n] = dur[start_index[n]]
 
+/\ forall(m in MEETING)(
+let {var ROOM: r = room[m];} in
+disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
+)
 
 ); %%%% END OF STAGE B
+
 
 
 % Objective function
