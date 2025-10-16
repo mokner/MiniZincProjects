@@ -47,7 +47,9 @@ array[MEETING] of var MEETING: start_index; % index of start times in chronologi
 %%%%% STAGE A %%%%%
 
 % Setting kungfu lessons out of range for stage A
-constraint forall(i in KUNGFU)(kungfu[i] > 24*ndays);
+constraint (stage = A \/ stage = B) ->
+( forall(i in KUNGFU)(kungfu[i] > 24*ndays)
+);
 
 % Ensures meeting start times and durations don't overlap with each other
 
@@ -73,7 +75,8 @@ start[m] mod 24 >= earliest
 %%%%% STAGE B CONSTRAINTS START HERE
 
 array[MEETING] of var TIME: full_dur;
-constraint (stage = B) ->
+
+constraint (stage = B \/ stage = C) ->
 (  %%% mind these brackets
 
 % Start index constraint
@@ -94,17 +97,46 @@ let {var ROOM: r = room[start_index[m]];
 
 /\ full_dur[n] = dur[start_index[n]]
 
+% Rooms reserved constraint with new full_dur schedule
 /\ forall(m in MEETING)(
 let {var ROOM: r = room[m];} in
 disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
 )
 
+
 ); %%%% END OF STAGE B
 
 
+%%% STAGE C CONSTRAINTS START HERE
+  constraint (stage = C) ->
+  (
+    %%% gap and duration between kungfu lessons    
+    
+      forall(k in 1..n-1)(kungfu[k+1] >= kungfu[k] + lessontime + minsep)
+          
+      /\    
+      
+      forall(k in KUNGFU)((kungfu[k] mod 24) in earliest..latest)
+      
+      /\
+      
+      forall(k in 1..n-1)(
+        kungfu[k] + lessontime + move[room[start_index[k]], room[start_index[k+1]]] <= start[start_index[k+1]]
+      
+      )
+
+      %kungfu[k] + lessontime + move[r, next_r])
+    
+   );
+
+var int: kungfu_score = 0;
+
+%constraint (stage = A \/ stage = B) -> (kungfu_score = 0);
+
+%constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where kungfu[k] <= 24*ndays)(k)));
 
 % Objective function
-solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]);
+solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]) + 100*kungfu_score;
 
 %output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
 %output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
