@@ -137,11 +137,15 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
         %/\ ((kungfu[k] + lessontime) <= start[next_s] )            
         %\/ ((kungfu[k]) >= latest*ndays)
         
-        %(kungfu[k] + lessontime = start[s] + dur[s])
-        %\/ ((kungfu[k]) >= latest*ndays)
+        (kungfu[k] + lessontime = start[s] + dur[s])
+        \/ ((kungfu[k]) >= latest*ndays)
         
-        if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
-        else (kungfu[k] + lessontime = start[s] + dur[s]) endif
+%         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
+%         else (kungfu[k] + lessontime = start[s] + dur[s]) endif
+
+%         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays) \/ (kungfu[k] + lessontime = start[s] + dur[s])
+%           endif
+        
       )
     
    );
