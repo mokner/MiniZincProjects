@@ -115,10 +115,10 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
           
       /\    
       
-      % kungfu lessons can only be between meeting hours
-      forall(k in KUNGFU)((kungfu[k] mod 24) in earliest..latest-lessontime)
+%       % kungfu lessons can only be between meeting hours
+%         forall(k in KUNGFU)((kungfu[k] mod 24) in earliest..(latest-lessontime))
       
-      /\
+%         /\
       
       %
       forall(k in 1..n-1)(
@@ -131,10 +131,17 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
           } in
       
      
-        kungfu[k] >= start[s] + dur[s] - lessontime 
-        /\ kungfu[k] + lessontime + move_dur <= start[next_s] 
-        \/ kungfu[k] + lessontime + move_dur >= start[start_index[n]]
-      
+        
+        %    (kungfu[k] > start[s])
+        %/\ ((kungfu[k] + lessontime) <= (start[s] + dur[s])) 
+        %/\ ((kungfu[k] + lessontime) <= start[next_s] )            
+        %\/ ((kungfu[k]) >= latest*ndays)
+        
+        %(kungfu[k] + lessontime = start[s] + dur[s])
+        %\/ ((kungfu[k]) >= latest*ndays)
+        
+        if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
+        else (kungfu[k] + lessontime = start[s] + dur[s]) endif
       )
     
    );
@@ -143,7 +150,7 @@ var int: kungfu_score;
 
 constraint (stage = A \/ stage = B) -> (kungfu_score = 0);
 
-constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where kungfu[k] <= 24*ndays)(1)));
+constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where (kungfu[k] <= latest*ndays))(1)));
 
 % Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]) + 100*kungfu_score;
@@ -152,3 +159,4 @@ solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]) + 100*kungfu_s
 %output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
 %output["start: \(start), \n start_index: \(start_index)" ];
 %output["start: \(start), \n start_index: \(start_index), \n sorted index: \(sort(start_index))" ];
+%output["sum: \(sum(k in KUNGFU where (kungfu[k] <= 24*ndays))(1))"];
