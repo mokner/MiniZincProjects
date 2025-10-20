@@ -129,19 +129,18 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
            var ROOM: next_r = room[start_index[k+1]];
            var TIME: move_dur = move[r, next_r];
           } in
-      
-     
+
         
-        %    (kungfu[k] > start[s])
-        %/\ ((kungfu[k] + lessontime) <= (start[s] + dur[s])) 
-        %/\ ((kungfu[k] + lessontime) <= start[next_s] )            
-        %\/ ((kungfu[k]) >= latest*ndays)
-        
-        (kungfu[k] + lessontime = start[s] + dur[s])
+        ((kungfu[k] + lessontime = start[s] + dur[s])
+        /\ (kungfu[k] > start[s])
+        /\ (kungfu[k] < start[next_s]))
         \/ ((kungfu[k]) >= latest*ndays)
         
 %         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
 %         else (kungfu[k] + lessontime = start[s] + dur[s]) endif
+
+% if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
+%         else ((kungfu[k] + lessontime = start[s] + dur[s]) \/ ((kungfu[k]) >= latest*ndays)) endif
 
 %         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays) \/ (kungfu[k] + lessontime = start[s] + dur[s])
 %           endif
