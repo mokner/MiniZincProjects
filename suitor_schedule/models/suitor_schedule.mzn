@@ -110,42 +110,21 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
 %%% STAGE C CONSTRAINTS START HERE
   constraint (stage = C) ->
   (
-      %duration and gap between kungfu lessons    
-      forall(k in 1..n-1)(kungfu[k+1] >= kungfu[k] + lessontime + minsep)
+%       %duration and gap between kungfu lessons    
+%       forall(k in 1..n-1)(kungfu[k+1] >= kungfu[k] + lessontime + minsep)
           
-      /\    
+%       /\    
       
-%       % kungfu lessons can only be between meeting hours
-%         forall(k in KUNGFU)((kungfu[k] mod 24) in earliest..(latest-lessontime))
       
-%         /\
+      forall(k in KUNGFU)
+      (
+          if (dur[k] >= lessontime + mintime[suitor[k], room[k]]) then
+             (kungfu[k] = start[k] + dur[k] - lessontime) else
+             (kungfu[k] > 24*ndays + k*(minsep + lessontime)
+             ) endif
       
-      %
-      forall(k in 1..n-1)(
-      let {
-           var TIME: s = start_index[k];
-           var TIME: next_s = start_index[k+1];
-           var ROOM: r = room[start_index[k]];
-           var ROOM: next_r = room[start_index[k+1]];
-           var TIME: move_dur = move[r, next_r];
-          } in
-
-        
-        ((kungfu[k] + lessontime = start[s] + dur[s])
-        /\ (kungfu[k] > start[s])
-        /\ (kungfu[k] < start[next_s]))
-        \/ ((kungfu[k]) >= latest*ndays)
-        
-%         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
-%         else (kungfu[k] + lessontime = start[s] + dur[s]) endif
-
-% if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays)
-%         else ((kungfu[k] + lessontime = start[s] + dur[s]) \/ ((kungfu[k]) >= latest*ndays)) endif
-
-%         if (dur[k]=lessontime) then ((kungfu[k]) >= latest*ndays) \/ (kungfu[k] + lessontime = start[s] + dur[s])
-%           endif
-        
       )
+      
     
    );
 
@@ -153,7 +132,7 @@ var int: kungfu_score;
 
 constraint (stage = A \/ stage = B) -> (kungfu_score = 0);
 
-constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where (kungfu[k] <= latest*ndays))(1)));
+constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where (kungfu[k] <= 24*ndays))(1)));
 
 % Objective function
 solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]) + 100*kungfu_score;
