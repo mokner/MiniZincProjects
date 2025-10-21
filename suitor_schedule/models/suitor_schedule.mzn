@@ -77,7 +77,7 @@ start[m] mod 24 >= earliest
 array[MEETING] of var TIME: full_dur;
 
 constraint (stage = B \/ stage = C) ->
-(  %%% mind these brackets
+(
 
 % Start index constraint
  arg_sort(start, start_index)
@@ -108,23 +108,29 @@ disjunctive([start[m] mod 24, usedstart[r]], [full_dur[m], useddur[r]])
 
 
 %%% STAGE C CONSTRAINTS START HERE
+
+array[KUNGFU] of var int: kungfu_temp;
+
   constraint (stage = C) ->
   (
-%       %duration and gap between kungfu lessons    
-%       forall(k in 1..n-1)(kungfu[k+1] >= kungfu[k] + lessontime + minsep)
+      %duration and gap between kungfu lessons    
+      forall(k in 1..n-1)(kungfu[k+1] >= kungfu[k] + lessontime + minsep)
           
-%       /\    
+      /\    
       
       
       forall(k in KUNGFU)
       (
           if (dur[k] >= lessontime + mintime[suitor[k], room[k]]) then
-             (kungfu[k] = start[k] + dur[k] - lessontime) else
-             (kungfu[k] > 24*ndays + k*(minsep + lessontime)
+             (kungfu_temp[k] = start[k] + dur[k] - lessontime) else
+             (kungfu_temp[k] > 24*ndays  + k*(minsep + lessontime) 
              ) endif
       
       )
       
+      /\
+      
+      kungfu= sort(kungfu_temp)
     
    );
 
