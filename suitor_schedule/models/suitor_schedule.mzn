@@ -76,6 +76,8 @@ start[m] mod 24 >= earliest
 
 array[MEETING] of var TIME: full_dur;
 
+array[MEETING] of var TIME: start_sort;
+
 constraint (stage = B \/ stage = C) ->
 (
 
@@ -90,12 +92,15 @@ let {var ROOM: r = room[start_index[m]];
       
      } in
      
-     full_dur[m] = dur[start_index[m]] + move_dur
+     (full_dur[start_index[m]] = dur[start_index[m]] + move_dur)
+     /\ (full_dur[start_index[n]] = dur[start_index[n]])
 )
+
+%/\ start_sort = sort(start)
 
 /\ disjunctive(start, full_dur)
 
-/\ full_dur[n] = dur[start_index[n]]
+%/\ full_dur[n] = dur[start_index[n]]
 
 % Rooms reserved constraint with new full_dur schedule
 /\ forall(m in MEETING)(
@@ -122,15 +127,16 @@ array[KUNGFU] of var int: kungfu_temp;
       forall(k in KUNGFU)
       (
           if (dur[k] >= lessontime + mintime[suitor[k], room[k]]) then
-             (kungfu_temp[k] = start[k] + dur[k] - lessontime) else
-             (kungfu_temp[k] > 24*ndays  + k*(minsep + lessontime) 
+             (kungfu_temp[k] = start[k] + dur[k] - lessontime) 
+             else
+             (kungfu_temp[k] > 24*ndays + k*(minsep + lessontime) 
              ) endif
       
       )
       
       /\
       
-      kungfu= sort(kungfu_temp)
+      kungfu = sort(kungfu_temp)
     
    );
 
@@ -141,7 +147,12 @@ constraint (stage = A \/ stage = B) -> (kungfu_score = 0);
 constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where (kungfu[k] <= 24*ndays))(1)));
 
 % Objective function
-solve maximize sum(s in MEETING where suitor[s] = LiuBei)(dur[s]) + 100*kungfu_score;
+solve maximize sum(s in MEETING where suitor[s] = LiuBei)
+(
+  if (kungfu_temp[s] <= 24*ndays /\ stage = C) then (dur[s] - lessontime) 
+  else (dur[s]) endif
+) 
++ 100*kungfu_score;
 
 %output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
 %output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
