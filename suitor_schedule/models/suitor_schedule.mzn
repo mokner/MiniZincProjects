@@ -55,6 +55,8 @@ constraint (stage = A \/ stage = B) ->
 
 constraint disjunctive(start, dur);
 
+%constraint (stage = A) -> (disjunctive(start, dur));
+
 % mintime and maxtime spent for suitors in meetings constraint
 constraint forall(m in MEETING)(dur[m] in mintime[suitor[m], room[m]]..maxtime[suitor[m],room[m]]);
 
@@ -146,13 +148,25 @@ constraint (stage = A \/ stage = B) -> (kungfu_score = 0);
 
 constraint (stage = C) -> (kungfu_score = (sum(k in KUNGFU where (kungfu[k] <= 24*ndays))(1)));
 
+var int: LB_score;
+
+constraint (stage = A \/ stage = B) -> (LB_score = sum(s in MEETING where suitor[s] = LiuBei)(dur[s]));
+
+constraint (stage = C) -> LB_score = (sum(s in MEETING where suitor[s] = LiuBei)
+ (
+   if (kungfu_temp[s] <= 24*ndays) then (dur[s] - lessontime) 
+   else (dur[s]) endif
+ ) );
+
 % Objective function
-solve maximize sum(s in MEETING where suitor[s] = LiuBei)
-(
-  if (kungfu_temp[s] <= 24*ndays /\ stage = C) then (dur[s] - lessontime) 
-  else (dur[s]) endif
-) 
-+ 100*kungfu_score;
+% solve maximize sum(s in MEETING where suitor[s] = LiuBei)
+% (
+%   if (kungfu_temp[s] <= 24*ndays /\ stage = C) then (dur[s] - lessontime) 
+%   else (dur[s]) endif
+% ) 
+% + 100*kungfu_score;
+
+solve maximize LB_score + 100*kungfu_score;
 
 %output["arg_sort (indices of sorted list): \(arg_sort([1, 2, 5, 4, 6, 3]))" ];
 %output["start: \(start), \narg_sort (indices of sorted list): \(arg_sort(start))" ];
