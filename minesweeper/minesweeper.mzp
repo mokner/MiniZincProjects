@@ -1,0 +1,16 @@
+{
+    "openFiles": [
+        "minesweeper.mzn",
+        "minesweeper_game_0.dzn",
+        "minesweeper_game_1.dzn"
+    ],
+    "openTab": 2,
+    "projectFiles": [
+        "minesweeper.mzn",
+        "minesweeper_game_0.dzn",
+        "minesweeper_game_1.dzn"
+    ],
+    "selectedBuiltinConfigId": "org.gecode.gecode",
+    "selectedBuiltinConfigVersion": "6.3.0",
+    "version": 106
+}
