@@ -51,10 +51,10 @@ constraint (stage = A) ->
 (
 
   % overlap constraint
-  
   diffn(x, y, ship_len, ship_wid)
-  
-  
+  /\
+  % boundaries constraint
+  forall(s in SHIP)( x[s] + ship_len[s] <= length /\ y[s] + ship_wid[s] <= width )
   
 
 );
