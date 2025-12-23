@@ -1,4 +1,5 @@
 include "diffn.mzn";
+include "lex_lesseq.mzn";
 
 int: length; % height of lake
 set of int: LENGTH = 0..length-1;
@@ -52,10 +53,25 @@ constraint (stage = A) ->
 
   % overlap constraint
   diffn(x, y, ship_len, ship_wid)
+  
   /\
   % boundaries constraint
   forall(s in SHIP)( x[s] + ship_len[s] <= length /\ y[s] + ship_wid[s] <= width )
+  /\
   
+  %%%% symmetry constraints
+  % x axis flip
+  let { array[SHIP] of var LENGTH: s_len;
+        array[SHIP] of var WIDTH:  s_wid;} in
+      forall(i in SHIP)(s_len[i] = x[width-i] %/\ s_wid[i] = y[i]
+      ) /\
+      lex_lesseq(x, s_len) %/\ lex_lesseq(y, s_wid)
+  %/\
+  
+%   % y axis flip
+%   let { array[N,N] of var bool: s; } in
+%     forall(i,j in N)(s[i,j] = t[i,n+1-j]) /\
+%     lex_lesseq(array1d(t), array1d(s))
 
 );
 
