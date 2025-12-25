@@ -59,20 +59,23 @@ constraint (stage = A) ->
   forall(s in SHIP)( x[s] + ship_len[s] <= length /\ y[s] + ship_wid[s] <= width )
   /\
   
-  %%%% symmetry constraints
+  %%%% symmetry constraints %%%%
   % x axis flip
-  let { array[SHIP] of var LENGTH: s_len;
-        array[SHIP] of var WIDTH:  s_wid;} in
-      forall(i in SHIP)(s_len[i] = x[width-i] %/\ s_wid[i] = y[i]
-      ) /\
-      lex_lesseq(x, s_len) %/\ lex_lesseq(y, s_wid)
-  %/\
+  let { array[SHIP] of var LENGTH: s_len;} in
+      forall(i in SHIP)(s_len[i] = length-x[i]-ship_len[i]) /\
+      lex_lesseq(x, s_len)
+  /\
   
-%   % y axis flip
-%   let { array[N,N] of var bool: s; } in
-%     forall(i,j in N)(s[i,j] = t[i,n+1-j]) /\
-%     lex_lesseq(array1d(t), array1d(s))
+   % y axis flip
+   let { array[SHIP] of var WIDTH: s_wid;} in
+      forall(i in SHIP)(s_wid[i] = width-y[i]-ship_wid[i]) /\
+      lex_lesseq(y, s_wid)
+  %/\
 
 );
+
+%%% STAGE B
+
+
 
 solve minimize budget;
